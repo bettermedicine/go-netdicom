@@ -10,7 +10,7 @@ compatible DICOM network protocol implementation.
 
 -------
 
-[![GoDoc](https://godoc.org/github.com/grailbio/go-netdicom?status.svg)](https://godoc.org/github.com/grailbio/go-netdicom) [![Build Status](https://travis-ci.org/grailbio/go-netdicom.svg?branch=master)](https://travis-ci.org/grailbio/go-netdicom.svg?branch=master)
+[![GoDoc](https://godoc.org/github.com/bettermedicine/go-netdicom?status.svg)](https://godoc.org/github.com/bettermedicine/go-netdicom) [![Build Status](https://travis-ci.org/bettermedicine/go-netdicom.svg?branch=master)](https://travis-ci.org/bettermedicine/go-netdicom.svg?branch=master)
 
 # Golang implementation of DICOM network protocol.
 

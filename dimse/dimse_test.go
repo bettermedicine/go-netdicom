@@ -4,8 +4,9 @@ import (
 	"encoding/binary"
 	"testing"
 
+	"github.com/bettermedicine/go-netdicom/dimse"
+	"github.com/bettermedicine/go-netdicom/sopclass"
 	"github.com/grailbio/go-dicom/dicomio"
-	"github.com/grailbio/go-netdicom/dimse"
 )
 
 func testDIMSE(t *testing.T, v dimse.Message) {
@@ -45,7 +46,7 @@ func TestCStoreRsp(t *testing.T) {
 }
 
 func TestCEchoRq(t *testing.T) {
-	testDIMSE(t, &dimse.CEchoRq{0x1234, 1, nil})
+	testDIMSE(t, &dimse.CEchoRq{0x1234, 1, nil, sopclass.VerificationClasses[0]})
 }
 
 func TestCEchoRsp(t *testing.T) {

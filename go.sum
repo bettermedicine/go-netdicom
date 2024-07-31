@@ -2,6 +2,10 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gobwas/glob v0.0.0-20170212200151-51eb1ee00b6d h1:IngNQgbqr5ZOU0exk395Szrvkzes9Ilk1fmJfkw7d+M=
 github.com/gobwas/glob v0.0.0-20170212200151-51eb1ee00b6d/go.mod h1:d3Ez4x06l9bZtSvzIay5+Yzi0fmZzPgnTbPcKjJAkT8=
+github.com/grailbio/go-dicom v0.0.0-20211105193521-b0e216a1c5cd h1:vEHEX8JYPLR9j65DaRaUrmFPex/nhMNFJ/gs2aUSOTI=
+github.com/grailbio/go-dicom v0.0.0-20211105193521-b0e216a1c5cd/go.mod h1:GEP2d5Mz6UiZmV6QqUYeRKU5x+Sa36qVWtJFR0IZvoA=
+github.com/bettermedicine/go-netdicom v0.0.0-20211105192932-7caf23f3f5be h1:Y3s+l6ekZuk6so+FOaNfM3pfLW1VHLDzz6ZRZ8BChIg=
+github.com/bettermedicine/go-netdicom v0.0.0-20211105192932-7caf23f3f5be/go.mod h1:2RkUhYIest0C6zEKX3Bg9BpovbrZagt7WC//Lt2FLek=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.2.2 h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1w=
