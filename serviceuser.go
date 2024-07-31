@@ -195,8 +195,10 @@ func (su *ServiceUser) CEcho() error {
 	}
 	defer su.disp.deleteCommand(cs)
 	cs.sendMessage(
-		&dimse.CEchoRq{MessageID: cs.messageID,
-			CommandDataSetType: dimse.CommandDataSetTypeNull,
+		&dimse.CEchoRq{
+			MessageID:           cs.messageID,
+			CommandDataSetType:  dimse.CommandDataSetTypeNull,
+			AffectedSOPClassUID: dicomuid.VerificationSOPClass,
 		}, nil)
 	event, ok := <-cs.upcallCh
 	if !ok {

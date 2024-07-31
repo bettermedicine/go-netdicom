@@ -465,11 +465,13 @@ type CEchoRq struct {
 	MessageID          MessageID
 	CommandDataSetType uint16
 	Extra              []*dicom.Element // Unparsed elements
+	AffectedSOPClassUID string
 }
 
 func (v *CEchoRq) Encode(e *dicomio.Encoder) {
 	elems := []*dicom.Element{}
 	elems = append(elems, newElement(dicomtag.CommandField, uint16(48)))
+	elems = append(elems, newElement(dicomtag.AffectedSOPClassUID, v.AffectedSOPClassUID))
 	elems = append(elems, newElement(dicomtag.MessageID, v.MessageID))
 	elems = append(elems, newElement(dicomtag.CommandDataSetType, v.CommandDataSetType))
 	elems = append(elems, v.Extra...)
