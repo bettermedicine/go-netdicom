@@ -2,6 +2,7 @@ package netdicom
 
 import (
 	"fmt"
+	"math"
 	"sync"
 
 	"github.com/bettermedicine/go-netdicom/dimse"
@@ -176,6 +177,8 @@ func newServiceDispatcher(label string) *serviceDispatcher {
 		downcallCh:     make(chan stateEvent, 128),
 		activeCommands: make(map[dimse.MessageID]*serviceCommandState),
 		callbacks:      make(map[int]serviceCallback),
-		lastMessageID:  123,
+		// We're initializing it at a LARGE size because otherwise we can get message ID conflicts in the callback map.
+		// TODO: segregate client-initiated and server-initiated message IDs and their callbacks into separate id spaces.
+		lastMessageID: math.MaxUint16 - (4 * 1024),
 	}
 }
