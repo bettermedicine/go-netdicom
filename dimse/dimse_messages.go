@@ -462,9 +462,9 @@ func decodeCMoveRsp(d *messageDecoder) *CMoveRsp {
 }
 
 type CEchoRq struct {
-	MessageID          MessageID
-	CommandDataSetType uint16
-	Extra              []*dicom.Element // Unparsed elements
+	MessageID           MessageID
+	CommandDataSetType  uint16
+	Extra               []*dicom.Element // Unparsed elements
 	AffectedSOPClassUID string
 }
 
@@ -502,6 +502,7 @@ func decodeCEchoRq(d *messageDecoder) *CEchoRq {
 	v := &CEchoRq{}
 	v.MessageID = d.getUInt16(dicomtag.MessageID, requiredElement)
 	v.CommandDataSetType = d.getUInt16(dicomtag.CommandDataSetType, requiredElement)
+	v.AffectedSOPClassUID = d.getString(dicomtag.AffectedSOPClassUID, requiredElement)
 	v.Extra = d.unparsedElements()
 	return v
 }
