@@ -115,10 +115,10 @@ func (v *CStoreRsp) String() string {
 
 func decodeCStoreRsp(d *messageDecoder) *CStoreRsp {
 	v := &CStoreRsp{}
-	v.AffectedSOPClassUID = d.getString(dicomtag.AffectedSOPClassUID, requiredElement)
+	v.AffectedSOPClassUID = d.getString(dicomtag.AffectedSOPClassUID, optionalElement)
 	v.MessageIDBeingRespondedTo = d.getUInt16(dicomtag.MessageIDBeingRespondedTo, requiredElement)
 	v.CommandDataSetType = d.getUInt16(dicomtag.CommandDataSetType, requiredElement)
-	v.AffectedSOPInstanceUID = d.getString(dicomtag.AffectedSOPInstanceUID, requiredElement)
+	v.AffectedSOPInstanceUID = d.getString(dicomtag.AffectedSOPInstanceUID, optionalElement)
 	v.Status = d.getStatus()
 	v.Extra = d.unparsedElements()
 	return v
