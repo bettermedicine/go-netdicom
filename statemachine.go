@@ -182,11 +182,16 @@ var actionAe3 = &stateAction{"AE-3", "Issue A-ASSOCIATE confirmation (accept) pr
 		stopTimer(sm)
 		v := event.pdu.(*pdu.AAssociate)
 		doassert(v.Type == pdu.TypeAAssociateAc)
+		// since these are otherwise 16 bytes wide,
+		sm.CalledAETitle = strings.TrimSpace(v.CalledAETitle)
+		sm.CallingAETitle = strings.TrimSpace(v.CallingAETitle)
 		err := sm.contextManager.onAssociateResponse(v.Items)
 		if err == nil {
 			sm.upcallCh <- upcallEvent{
-				eventType: upcallEventHandshakeCompleted,
-				cm:        sm.contextManager,
+				eventType:      upcallEventHandshakeCompleted,
+				cm:             sm.contextManager,
+				CalledAETitle:  v.CalledAETitle,
+				CallingAETitle: v.CallingAETitle,
 			}
 			return sta06
 		}
@@ -226,6 +231,8 @@ otherwise issue A-ASSOCIATE-RJ-PDU and start ARTIM timer`,
 	func(sm *stateMachine, event stateEvent) stateType {
 		stopTimer(sm)
 		v := event.pdu.(*pdu.AAssociate)
+		sm.CalledAETitle = strings.TrimSpace(v.CalledAETitle)
+		sm.CallingAETitle = strings.TrimSpace(v.CallingAETitle)
 		if v.ProtocolVersion != 0x0001 {
 			dicomlog.Vprintf(0, "dicom.stateMachine(%s): Wrong remote protocol version 0x%x", sm.label, v.ProtocolVersion)
 			rj := pdu.AAssociateRj{Result: 1, Source: 2, Reason: 2}
@@ -263,10 +270,15 @@ otherwise issue A-ASSOCIATE-RJ-PDU and start ARTIM timer`,
 	}}
 var actionAe7 = &stateAction{"AE-7", "Send A-ASSOCIATE-AC PDU",
 	func(sm *stateMachine, event stateEvent) stateType {
-		sendPDU(sm, event.pdu.(*pdu.AAssociate))
+		v := event.pdu.(*pdu.AAssociate)
+		sm.CalledAETitle = strings.TrimSpace(v.CalledAETitle)
+		sm.CallingAETitle = strings.TrimSpace(v.CallingAETitle)
+		sendPDU(sm, v)
 		sm.upcallCh <- upcallEvent{
-			eventType: upcallEventHandshakeCompleted,
-			cm:        sm.contextManager,
+			eventType:      upcallEventHandshakeCompleted,
+			cm:             sm.contextManager,
+			CalledAETitle:  v.CalledAETitle,
+			CallingAETitle: v.CallingAETitle,
 		}
 		return sta06
 	}}
@@ -537,6 +549,10 @@ type upcallEvent struct {
 
 	command dimse.Message
 	data    []byte
+
+	// AE titles from the association handshake. Set for upcallEventHandshakeCompleted.
+	CalledAETitle  string
+	CallingAETitle string
 }
 
 type stateEventDIMSEPayload struct {
@@ -753,6 +769,10 @@ type stateMachine struct {
 
 	// For assembling DIMSE command from multiple P_DATA_TF fragments.
 	commandAssembler dimse.CommandAssembler
+
+	// AE titles from the A-ASSOCIATE PDU. Set during association handshake.
+	CalledAETitle  string
+	CallingAETitle string
 
 	// Only for testing.
 	faults FaultInjector
