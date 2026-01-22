@@ -3,6 +3,7 @@ package netdicom
 import (
 	"fmt"
 	"math"
+	"strings"
 	"sync"
 
 	"github.com/bettermedicine/go-netdicom/dimse"
@@ -27,6 +28,11 @@ type serviceDispatcher struct {
 	// The last message ID used in newCommand(). Used to avoid creating duplicate
 	// IDs.
 	lastMessageID dimse.MessageID
+
+	// AE titles from the association handshake. Set once and reused for all commands.
+	// guarded by mu
+	CalledAETitle  string
+	CallingAETitle string
 }
 
 type serviceCallback func(msg dimse.Message, data []byte, cs *serviceCommandState)
@@ -40,6 +46,10 @@ type serviceCommandState struct {
 
 	// upcallCh streams command+data for this messageID.
 	upcallCh chan upcallEvent
+
+	// AE titles from the association handshake.
+	CalledAETitle  string
+	CallingAETitle string
 }
 
 // Send a command+data combo to the remote peer. data may be nil.
@@ -72,11 +82,13 @@ func (disp *serviceDispatcher) findOrCreateCommand(
 		return cs, true
 	}
 	cs := &serviceCommandState{
-		disp:      disp,
-		messageID: msgID,
-		cm:        cm,
-		context:   context,
-		upcallCh:  make(chan upcallEvent, 128),
+		disp:           disp,
+		messageID:      msgID,
+		cm:             cm,
+		context:        context,
+		upcallCh:       make(chan upcallEvent, 128),
+		CalledAETitle:  disp.CalledAETitle,
+		CallingAETitle: disp.CallingAETitle,
 	}
 	disp.activeCommands[msgID] = cs
 	dicomlog.Vprintf(1, "dicom.serviceDispatcher(%s): Start command %+v", disp.label, cs)
@@ -96,11 +108,13 @@ func (disp *serviceDispatcher) newCommand(
 		}
 
 		cs := &serviceCommandState{
-			disp:      disp,
-			messageID: msgID,
-			cm:        cm,
-			context:   context,
-			upcallCh:  make(chan upcallEvent, 128),
+			disp:           disp,
+			messageID:      msgID,
+			cm:             cm,
+			context:        context,
+			upcallCh:       make(chan upcallEvent, 128),
+			CalledAETitle:  disp.CalledAETitle,
+			CallingAETitle: disp.CallingAETitle,
 		}
 		disp.activeCommands[msgID] = cs
 		disp.lastMessageID = msgID
@@ -134,6 +148,18 @@ func (disp *serviceDispatcher) unregisterCallback(commandField int) {
 
 func (disp *serviceDispatcher) handleEvent(event upcallEvent) {
 	if event.eventType == upcallEventHandshakeCompleted {
+		// Store AE titles in dispatcher for use in all commands on this association
+		disp.mu.Lock()
+		// these are 16 bytes wide and space padded by default
+		// so lets trim spaces
+		disp.CalledAETitle = strings.TrimSpace(event.CalledAETitle)
+		disp.CallingAETitle = strings.TrimSpace(event.CallingAETitle)
+		// Update all existing commands with the AE titles
+		for _, cs := range disp.activeCommands {
+			cs.CalledAETitle = event.CalledAETitle
+			cs.CallingAETitle = event.CallingAETitle
+		}
+		disp.mu.Unlock()
 		return
 	}
 	doassert(event.eventType == upcallEventData)
@@ -154,8 +180,14 @@ func (disp *serviceDispatcher) handleEvent(event upcallEvent) {
 	}
 	disp.mu.Lock()
 	cb := disp.callbacks[event.command.CommandField()]
+	// Get AE titles from dispatcher (set during handshake)
+	calledAE := disp.CalledAETitle
+	callingAE := disp.CallingAETitle
 	disp.mu.Unlock()
 	go func() {
+		// Update AE titles on the command state from dispatcher
+		dc.CalledAETitle = calledAE
+		dc.CallingAETitle = callingAE
 		cb(event.command, event.data, dc)
 		disp.deleteCommand(dc)
 	}()
