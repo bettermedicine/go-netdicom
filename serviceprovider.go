@@ -392,6 +392,7 @@ type ConnectionState struct {
 	TLS            tls.ConnectionState
 	CalledAETitle  string
 	CallingAETitle string
+	RemoteAddress  net.Addr
 }
 
 // CEchoCallback implements C-ECHO callback. It typically just returns
@@ -483,6 +484,7 @@ func NewServiceProvider(params ServiceProviderParams, port string) (*ServiceProv
 }
 
 func getConnState(conn net.Conn) (cs ConnectionState) {
+	cs.RemoteAddress = conn.RemoteAddr()
 	tlsConn, ok := conn.(*tls.Conn)
 	if ok {
 		cs.TLS = tlsConn.ConnectionState()

@@ -66,7 +66,7 @@ func TestCStore(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to find PatientID element: %v", err)
 			}
-
+			log.Printf("Remote address %s", connState.RemoteAddress.String())
 			result := &AETitleParsingTestCase{
 				UniquePatientName: patientID.Value[0].(string),
 				CalledAETitle:     connState.CalledAETitle,
